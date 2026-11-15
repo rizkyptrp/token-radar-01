@@ -1,7 +1,8 @@
-// Token Radar, model radar-2 (Node 22, standard library only).
+// Token Radar, model radar-3 (Node 22, standard library only).
 //
 // main.ts reads the sealed snapshot from /input/snapshot.json (or --input <file|dir>),
-// scores every pre-token protocol with the model in lib/model.ts, and writes:
+// calibrates the value model on the snapshot's own tokened protocols, scores every
+// pre-token protocol with the model in lib/model.ts, and writes:
 //   /output/board.json    the ranked board, watchlist covered, farm plan per row
 //   /output/data.js       the dashboard's dataset, written beside the page
 //   /output/dashboard/    this repository's dashboard/, copied as-is
@@ -101,6 +102,7 @@ writeFileSync(
 
 process.stdout.write(
   `token radar: ${snapshot.protocols.length} protocols, ${snapshot.watchlist.length} on the watchlist, ${board.length} rows scored (${radar.early_size} early, ${radar.live_size} live set aside)\n` +
+    `token radar: calibrated from ${radar.calibration.comparables} tokened protocols (${radar.calibration.excluded_zero_mcap} dead $0 tokens left out), global median mcap/TVL ${radar.calibration.global_median}x, ${radar.calibration.categories.length} categories with their own multiple\n` +
     `token radar: total implied value $${radar.total_implied_usd.toLocaleString('en-US')}, median $${radar.median_implied_usd.toLocaleString('en-US')}\n` +
     `token radar: wrote ${join(out, 'board.json')}, ${join(out, 'data.js')}, ${join(out, 'dashboard')} (${dash.length} files), ${join(out, 'screenshots')} (${shots.length} images) and ${join(out, 'dossier.json')}\n`,
 );

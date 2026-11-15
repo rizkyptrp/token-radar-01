@@ -15,13 +15,21 @@ mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts --input <snapshot.json>
 
 Node 22+, standard library only, no network. Two runs write the same bytes.
 
-## The model (radar-2)
+## The model (radar-3)
 
 One function scores every row, from the snapshot's own figures only — no
-protocol name is ever special-cased:
+protocol name is ever special-cased. The multiple is calibrated, not guessed:
+it is the median market-cap / TVL ratio of the tokened protocols in the row's
+own category (five or more comparables earn a category its own multiple), else
+the median across all tokened protocols in the snapshot. On this snapshot that
+is 128 comparables (16 dead $0 tokens left out), a global median of 0.214x,
+and 9 categories with their own multiple — Lending 0.132x, Dexs 0.342x, RWA
+0.275x, Canonical Bridge 0.746x, Basis Trading 0.654x, and the rest in the
+dashboard's calibration table. Each row also carries the range the middle half
+of its comparables would be worth, and a confidence note.
 
 ```
-implied = round( tvl_usd × 0.30
+implied = round( tvl_usd × multiple(category)
                × (1 + clamp(change_7d, -60, +150) / 100 × 0.60)
                × (0.70 + min(age_days, 1095) / 1095 × 0.30)
                × (1 + min(chains − 1, 6) × 0.02) )
@@ -30,7 +38,8 @@ implied = round( tvl_usd × 0.30
 Age is days from `listed_at` to the snapshot's `as_of` date, never the wall
 clock. The board covers all 40 watchlist slugs, then adds the 160 strongest
 pre-token protocols below the $50M floor, ranked by this same implied value.
-Protocols whose token already trades are shown apart at their market cap.
+Protocols whose token already trades are shown apart at their market cap —
+and they are the comparables the model is calibrated on.
 
 ## Layout
 
